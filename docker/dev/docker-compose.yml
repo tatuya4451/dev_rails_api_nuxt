@@ -1,0 +1,52 @@
+version: '3'
+
+services:
+  api:
+    build: ./api/
+    ports:
+      - '3000:3000'
+    volumes:
+      - '~/www/dev_rails_api_nuxt/api:/var/www/dev_rails_api_nuxt/api'
+    depends_on:
+      - db
+    links:
+      - db
+    tty: true
+    stdin_open: true
+
+  db:
+    image: mysql:8.0
+    platform: linux/x86_64
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    ports:
+      - '3306:3306'
+    command: --default-authentication-plugin=mysql_native_password
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  frontend:
+    build: ./frontend/
+    ports:
+      - '8000:3000'
+    volumes:
+      - '~/www/dev_rails_api_nuxt/frontend:/var/www/dev_rails_api_nuxt/frontend'
+    tty: true
+
+  # 開発環境をhttps化したい場合はこのコンテナを立ち上げること
+  https-portal:
+    image: steveltn/https-portal:1
+    ports:
+      - '80:80'
+      - '443:443'
+    links:
+      - api
+    restart: always
+    environment:
+      DOMAINS: 'dev.rails.jp -> http://api:3000'
+      STAGE: 'local'
+    volumes:
+      - ./https-portal:/var/lib/https-portal
+
+volumes:
+  mysql_data:
