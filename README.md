@@ -5,6 +5,8 @@
     - ruby:3.2.1
   - mysql
     - mysql:8.0
+  - frontend
+    - nuxt3.3.1
 
 - git clone or fork
 
